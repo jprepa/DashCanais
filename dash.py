@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 from unicodedata import normalize
 
-st.set_page_config(page_title="Painel Comercial - Prevision", layout="wide")
-st.title("📊 Painel Comercial por Canal (Gestão de Território)")
+st.set_page_config(page_title="Análise Canais", layout="wide")
+st.title("📊 Análise Canais")
 st.markdown("---")
 
 # --- 1. MAPEAMENTOS ---
@@ -390,6 +390,7 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Erro ao processar: {e}")
+
 
 
 
