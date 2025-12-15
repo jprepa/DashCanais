@@ -4,7 +4,7 @@ import plotly.express as px
 from unicodedata import normalize
 
 st.set_page_config(page_title="Análise Canais", layout="wide")
-st.title("📊 Análise Canais")
+st.title("📊 Análise Canais (Filtro DDD + Canal)")
 st.markdown("---")
 
 # --- 1. MAPEAMENTOS ---
@@ -124,7 +124,8 @@ uploaded_file = st.file_uploader("Upload da planilha (.xlsx)", type=['xlsx', 'xl
 dfs = {}
 filtros_ano = set()
 filtros_mes_nums = set()
-canais_encontrados = set()
+# Conjunto para guardar pares unicos (DDD, Canal) encontrados
+ddds_encontrados_info = set() 
 ddds_sem_canal = set()
 
 if uploaded_file:
@@ -168,7 +169,13 @@ if uploaded_file:
                 if c_ddd:
                     clean['DDD_Num'] = df[c_ddd].apply(extrair_ddd)
                     clean['Canal'] = clean['DDD_Num'].apply(definir_canal)
-                    canais_encontrados.update(clean['Canal'].unique())
+                    
+                    # Guardar info para o filtro (DDD e Canal)
+                    # Apenas DDDs válidos (>0)
+                    pares_unicos = clean[clean['DDD_Num'] > 0][['DDD_Num', 'Canal']].drop_duplicates().values
+                    for d, c in pares_unicos:
+                        ddds_encontrados_info.add((int(d), c))
+
                     ddds_perdidos = clean[clean['Canal'] == 'Outros (Sem Canal)']['DDD_Num'].unique()
                     ddds_sem_canal.update(ddds_perdidos)
                 else:
@@ -213,9 +220,18 @@ if uploaded_file:
         mes_sel_nomes = st.sidebar.multiselect("Mês", lista_meses_nomes, default=lista_meses_nomes)
         mes_sel_nums = [MAPA_MESES_INV.get(m) for m in mes_sel_nomes if m in MAPA_MESES_INV]
         
-        # Canal
-        lista_canais = sorted([c for c in list(canais_encontrados) if c != 'Sem Info'])
-        canal_sel = st.sidebar.multiselect("Canal", lista_canais, default=lista_canais)
+        # --- FILTRO DDD + CANAL ---
+        # Ordena por DDD
+        lista_ddds_ordenada = sorted(list(ddds_encontrados_info), key=lambda x: x[0])
+        # Cria strings formatadas "DD - Canal"
+        opcoes_formatadas = [f"{d} - {c}" for d, c in lista_ddds_ordenada]
+        
+        # Multiselect mostrando "47 - NPU"
+        ddd_sel_strings = st.sidebar.multiselect("DDD - Canal", options=opcoes_formatadas, default=opcoes_formatadas)
+        
+        # Extrai apenas os números dos DDDs selecionados para filtrar o DF
+        # Ex: "47 - NPU" -> pega 47
+        ddds_escolhidos = [int(s.split(' - ')[0]) for s in ddd_sel_strings]
 
         st.sidebar.markdown("---")
         if ddds_sem_canal:
@@ -227,7 +243,14 @@ if uploaded_file:
             mask = pd.Series(True, index=df.index)
             if ano_sel and 'Ano' in df.columns: mask &= (df['Ano'] == ano_sel) | (df['Ano'] == 0)
             if mes_sel_nums and 'Mês' in df.columns: mask &= (df['Mês'].isin(mes_sel_nums)) | (df['Mês'] == 0)
-            if canal_sel and 'Canal' in df.columns: mask &= df['Canal'].isin(canal_sel)
+            
+            # Filtra por DDD_Num se houver seleção
+            if ddds_escolhidos and 'DDD_Num' in df.columns:
+                 # Filtra se o DDD está na lista
+                 # (Para tabelas que não têm DDD (ex: share as vezes?), assume-se 0 ou mantem)
+                 # Aqui filtramos estrito pelos DDDs presentes na lista
+                 mask &= df['DDD_Num'].isin(ddds_escolhidos)
+                 
             return df[mask]
 
         # --- ABAS ---
@@ -312,7 +335,7 @@ if uploaded_file:
                 st.dataframe(gerar_tabela_simples('Vendas', 'Nº Vendas', 'NMRR Novas Vendas'), hide_index=True, use_container_width=True)
             with c2:
                 st.markdown("### 🔵 Aditivos")
-                st.dataframe(gerar_tabela_simples('Aditivos', 'Nº Aditivos', 'NMRR Aditivos'), hide_index=True, use_container_width=True)
+                st.dataframe(gerar_tabela_simples('Aditivos', 'Nº Clientes', 'NMRR Adicionado'), hide_index=True, use_container_width=True)
 
             st.markdown("---")
             c3, c4 = st.columns(2)
@@ -329,13 +352,13 @@ if uploaded_file:
                     m['SQLs'] = m['SQLs'].apply(formatar_qtd)
                     st.dataframe(m[['Porte', 'SQLs', '% Conv']], hide_index=True, use_container_width=True)
             with c4:
-                st.markdown("### 🌎 Share")
+                st.markdown("### 🌎 Share de Mercado")
                 st.dataframe(gerar_tabela_share(), hide_index=True, use_container_width=True)
 
             st.markdown("---")
             c5, c6 = st.columns(2)
             with c5:
-                st.markdown("### 🔴 Churns")
+                st.markdown("### 🔴 Churn")
                 st.dataframe(gerar_tabela_churn(), hide_index=True, use_container_width=True)
             with c6:
                 st.markdown("### 📉 Reduções")
@@ -390,8 +413,3 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Erro ao processar: {e}")
-
-
-
-
-
