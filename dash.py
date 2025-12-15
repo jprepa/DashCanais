@@ -274,7 +274,7 @@ if uploaded_file:
             def gerar_tabela_churn():
                 df_churn = filtrar_df(dfs.get('Churn'))
                 df_vendas = filtrar_df(dfs.get('Vendas'))
-                if df_churn.empty: return pd.DataFrame(columns=['Porte', 'Nº Churns', 'MRR Perdido', '% Vendas x Churn'])
+                if df_churn.empty: return pd.DataFrame(columns=['Porte', 'Nº Clientes', 'MRR Perdido', '% Vendas x Churn'])
                 
                 resumo = df_churn.groupby('Porte')[['Qtd', 'Valor']].sum().reset_index()
                 tot_q, tot_v = resumo['Qtd'].sum(), resumo['Valor'].sum()
@@ -291,7 +291,7 @@ if uploaded_file:
                 resumo['Nº Clientes'] = resumo['Qtd'].apply(formatar_qtd)
                 resumo['MRR Perdido'] = resumo['Valor'].apply(formatar_reais)
                 resumo['% Vendas x Churn'] = resumo['Ratio'].apply(formatar_porcentagem)
-                return resumo[['Porte', 'Nº Clientes', 'MRR Perdido', '% Vendas x Churn']]
+                return resumo[['Porte', 'Nº Churns', 'MRR Perdido', '% Vendas x Churn']]
 
             def gerar_tabela_reducoes():
                 df = filtrar_df(dfs.get('Reduções'))
