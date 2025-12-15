@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 from unicodedata import normalize
 
-st.set_page_config(page_title="Análise Canais", layout="wide")
-st.title("📊 Análise Canais (Filtro DDD + Canal)")
+st.set_page_config(page_title="Análise DDDs", layout="wide")
+st.title("📊 Análise Sienge por DDD")
 st.markdown("---")
 
 # --- 1. MAPEAMENTOS ---
@@ -413,3 +413,4 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Erro ao processar: {e}")
+
