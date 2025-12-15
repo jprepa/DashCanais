@@ -312,7 +312,7 @@ if uploaded_file:
                 st.dataframe(gerar_tabela_simples('Vendas', 'Nº Vendas', 'NMRR Novas Vendas'), hide_index=True, use_container_width=True)
             with c2:
                 st.markdown("### 🔵 Aditivos")
-                st.dataframe(gerar_tabela_simples('Aditivos', 'Nº Clientes', 'NMRR Adicionado'), hide_index=True, use_container_width=True)
+                st.dataframe(gerar_tabela_simples('Aditivos', 'Nº Aditivos', 'NMRR Aditivos'), hide_index=True, use_container_width=True)
 
             st.markdown("---")
             c3, c4 = st.columns(2)
@@ -390,3 +390,4 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Erro ao processar: {e}")
+
