@@ -274,7 +274,7 @@ if uploaded_file:
             def gerar_tabela_churn():
                 df_churn = filtrar_df(dfs.get('Churn'))
                 df_vendas = filtrar_df(dfs.get('Vendas'))
-                if df_churn.empty: return pd.DataFrame(columns=['Porte', 'Nº Clientes', 'MRR Perdido', '% Vendas x Churn'])
+                if df_churn.empty: return pd.DataFrame(columns=['Porte', 'Nº Churns', 'MRR Perdido', '% Vendas x Churn'])
                 
                 resumo = df_churn.groupby('Porte')[['Qtd', 'Valor']].sum().reset_index()
                 tot_q, tot_v = resumo['Qtd'].sum(), resumo['Valor'].sum()
@@ -329,13 +329,13 @@ if uploaded_file:
                     m['SQLs'] = m['SQLs'].apply(formatar_qtd)
                     st.dataframe(m[['Porte', 'SQLs', '% Conv']], hide_index=True, use_container_width=True)
             with c4:
-                st.markdown("### 🌎 Share de Mercado")
+                st.markdown("### 🌎 Share")
                 st.dataframe(gerar_tabela_share(), hide_index=True, use_container_width=True)
 
             st.markdown("---")
             c5, c6 = st.columns(2)
             with c5:
-                st.markdown("### 🔴 Churn")
+                st.markdown("### 🔴 Churns")
                 st.dataframe(gerar_tabela_churn(), hide_index=True, use_container_width=True)
             with c6:
                 st.markdown("### 📉 Reduções")
@@ -390,4 +390,5 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Erro ao processar: {e}")
+
 
