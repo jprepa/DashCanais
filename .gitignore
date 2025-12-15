@@ -1,0 +1,11 @@
+# Ignorar arquivos de dados (NUNCA suba dados reais de vendas para o GitHub)
+*.xlsx
+*.xlsm
+*.csv
+
+# Ignorar arquivos de sistema e cache do Python
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.venv/
